@@ -1,12 +1,12 @@
 -module(database).
 
--export([connect/0, connection/1]).
+-export([connect/0, connection/1, get_connection/0]).
 
 connect() ->
   io:format("Connected to database.~n"),
 
-  Res = epgsql:connect("localhost", "dillonbenson", "", [
-    {database, "dillonbenson"},
+  Res = epgsql:connect("localhost", os:getenv("PG_USER"), os:getenv("PG_PASS"), [
+    {database, os:getenv("TODO_DB")},
     {timeout, 4000}
   ]),
 
@@ -36,3 +36,10 @@ ping(Conn) ->
   timer:sleep(100),
   epgsql:squery(Conn, "SELECT 1;"),
   ping(Conn).
+
+get_connection() ->
+  db_conn ! {self(), conn},
+
+  receive
+    {conn, Conn} -> Conn
+  end.

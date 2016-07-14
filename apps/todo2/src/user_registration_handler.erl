@@ -1,6 +1,6 @@
 -module(user_registration_handler).
 
--export([init/3, rest_init/2, service_available/2,
+-export([init/3, rest_init/2,
          is_authorized/2, content_types_provided/2, allowed_methods/2,
          malformed_request/2, resource_exists/2, is_conflict/2, content_types_accepted/2,
          register_user/2]).
@@ -10,16 +10,6 @@ init(_Transport, Req, Opts) ->
 
 rest_init(Req, Opts) ->
   {ok, Req, Opts}.
-
-service_available(Req, State) ->
-  Pid = proplists:get_value(db_conn, State),
-
-  case database:ping(Pid) of
-    true  -> {true, Req, State};
-    false ->
-      io:format(database:connection_error()),
-      {false, Req, State}
-  end.
 
 is_authorized(Req, State) ->
   {true, Req, State}.
@@ -64,11 +54,11 @@ resource_exists(Req, State) ->
 
 is_conflict(Req, State) ->
   {Username, Email, _} = proplists:get_value(user, State),
-  Pid = proplists:get_value(db_conn, State),
+  Conn = database:get_connection(),
 
-  case user_model:exists(Pid, {Username, Email}, username) of
+  case user_model:exists(Conn, {Username, Email}, username) of
     true ->
-      case user_model:exists(Pid, {Username, Email}, email) of
+      case user_model:exists(Conn, {Username, Email}, email) of
         true ->
           Body = "{\"status\": \"error\", \"errors\": [\"username already taken\", \"email already taken\"]}\n",
           Req2 = cowboy_req:set_resp_body(Body, Req),
@@ -79,7 +69,7 @@ is_conflict(Req, State) ->
           {true, Req2, State}
       end;
     false ->
-      case user_model:exists(Pid, {Username, Email}, email) of
+      case user_model:exists(Conn, {Username, Email}, email) of
         true ->
           Body = "{\"status\": \"error\", \"errors\": [\"email already taken\"]}\n",
           Req2 = cowboy_req:set_resp_body(Body, Req),
@@ -96,9 +86,9 @@ content_types_accepted(Req, State) ->
 
 register_user(Req, State) ->
   User = proplists:get_value(user, State),
-  Pid = proplists:get_value(db_conn, State),
+  Conn = database:get_connection(),
 
-  case user_model:create(Pid, User) of
+  case user_model:create(Conn, User) of
     {ok, created} ->
       Body = "{\"status\": \"ok\"}\n",
       Req2 = cowboy_req:set_resp_body(Body, Req),
