@@ -1,0 +1,18 @@
+{application, todo2,
+ [{description, "An OTP application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, { todo2_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    cowboy,
+    epgsql
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {maintainers, []},
+  {licenses, []},
+  {links, []}
+ ]}.
