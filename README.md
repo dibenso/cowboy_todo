@@ -12,7 +12,8 @@ PUT http://localhost:8080/users/register
 
 Setup
 -----
-    1. Install postgres.
+    1. Install postgres.    
+    On osx this can be done by using homebrew like: $ brew install postgres
     2. Ensure you have a $PG_USER environment variable. This will be used as the username for connecting to postgres.
     3. Ensure you have a $TODO_DB environment variable. This will be used as the database for connecting to postgres.
     4. Ensure you have a $PG_PASS environment variable. This will be used as the user password for connecting to postgres.
