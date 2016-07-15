@@ -42,4 +42,27 @@ create(Conn, User={Username, Email, Password}) ->
   end.
 
 validate({Username, Email, Password}) ->
-  {ok, validated}.
+  StrUsername = binary_to_list(Username),
+  StrEmail = binary_to_list(Email),
+  StrPassword = binary_to_list(Password),
+
+  GoodUsername = length(StrUsername) >= 8 andalso length(StrUsername) =< 32,
+  GoodPassword = length(StrPassword) >= 8 andalso length(StrPassword) =< 64,
+  GoodEmail = email_address:is_valid(StrEmail),
+
+  case GoodUsername of
+    true ->
+      case GoodPassword of
+        true ->
+          case GoodEmail of
+            true ->
+              {ok, validated};
+            false ->
+              {error, ["email address is not valid."]}
+          end;
+        false ->
+          {error, ["password must be between 8 and 64 characters long."]}
+      end;
+    false ->
+      {error, ["username must be between 8 and 32 characters long."]}
+  end.

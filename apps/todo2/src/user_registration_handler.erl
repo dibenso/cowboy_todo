@@ -1,6 +1,6 @@
 -module(user_registration_handler).
 
--export([init/3, rest_init/2,
+-export([init/3, rest_init/2, charsets_provided/2,
          is_authorized/2, content_types_provided/2, allowed_methods/2,
          malformed_request/2, resource_exists/2, is_conflict/2, content_types_accepted/2,
          register_user/2]).
@@ -10,6 +10,9 @@ init(_Transport, Req, Opts) ->
 
 rest_init(Req, Opts) ->
   {ok, Req, Opts}.
+
+charsets_provided(Req, State) ->
+  {[<<"UTF-8">>], Req, State}.
 
 is_authorized(Req, State) ->
   {true, Req, State}.

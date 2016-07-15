@@ -10,7 +10,8 @@
     epgsql,
     jiffy,
     crypto,
-    bcrypt
+    bcrypt,
+    email_address
    ]},
   {env,[]},
   {modules, []},
