@@ -1,6 +1,6 @@
 -module(user_login_handler).
 
--export([init/3, rest_init/2, service_available/2,
+-export([init/3, rest_init/2,
          is_authorized/2, content_types_provided/2, allowed_methods/2,
          malformed_request/2, resource_exists/2, content_types_accepted/2,
          login_user/2
@@ -11,16 +11,6 @@ init(_Transport, Req, Opts) ->
 
 rest_init(Req, Opts) ->
   {ok, Req, Opts}.
-
-service_available(Req, State) ->
-  Pid = proplists:get_value(db_conn, State),
-
-  case database:ping(Pid) of
-    true  -> {true, Req, State};
-    false ->
-      io:format(database:connection_error()),
-      {false, Req, State}
-  end.
 
 is_authorized(Req, State) ->
   {true, Req, State}.
@@ -68,4 +58,11 @@ content_types_accepted(Req, State) ->
 
 login_user(Req, State) ->
   User = proplists:get_value(user, State),
-  Pid = proplists:get_value(db_conn, State).
+  Conn = database:get_connection(),
+
+  case user_model:login(User) of
+    {ok, logged_in} ->
+      ok;
+    {error, Reason} ->
+      error
+  end.

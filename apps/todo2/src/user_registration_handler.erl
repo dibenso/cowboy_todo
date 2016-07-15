@@ -93,11 +93,15 @@ register_user(Req, State) ->
 
   case user_model:create(Conn, User) of
     {ok, created} ->
-      Body = "{\"status\": \"ok\"}\n",
-      Req2 = cowboy_req:set_resp_body(Body, Req),
+      Body = {[{status, <<"ok">>}]},
+      JsonBody = jiffy:encode(Body),
+
+      Req2 = cowboy_req:set_resp_body(JsonBody, Req),
       {true, Req2, State};
     {error, Reason} ->
-      Body = io_lib:format("{\"status\": \"error\", \"errors\": [\"~s\"]~n", [Reason]),
-      Req2 = cowboy_req:set_resp_body(Body, Req),
+      Body = {[{status, <<"error">>}, {errors, Reason}]},
+      JsonBody = jiffy:encode(Body),
+
+      Req2 = cowboy_req:set_resp_body(JsonBody, Req),
       {false, Req2, State}
   end.

@@ -50,19 +50,33 @@ validate({Username, Email, Password}) ->
   GoodPassword = length(StrPassword) >= 8 andalso length(StrPassword) =< 64,
   GoodEmail = email_address:is_valid(StrEmail),
 
-  case GoodUsername of
-    true ->
-      case GoodPassword of
-        true ->
-          case GoodEmail of
-            true ->
-              {ok, validated};
-            false ->
-              {error, ["email address is not valid."]}
-          end;
-        false ->
-          {error, ["password must be between 8 and 64 characters long."]}
-      end;
-    false ->
-      {error, ["username must be between 8 and 32 characters long."]}
+  Error1 = case GoodUsername of
+             true ->
+               [];
+             false ->
+               <<"username must be between 8 and 32 characters long.">>
+           end,
+
+  Error2 = case GoodPassword of
+             true ->
+               [];
+             false ->
+               <<"password must be between 8 and 32 characters long.">>
+             end,
+
+  Error3 = case GoodEmail of
+             true ->
+               [];
+             false ->
+               <<"email is not valid.">>
+             end,
+
+
+  Errors = lists:filter(fun(X) -> length(binary_to_list(X)) > 0 end, lists:flatten([Error1|[Error2|[Error3|[]]]])),
+
+  case length(Errors) of
+    0 ->
+      {ok, validated};
+    1 ->
+      {error, Errors}
   end.
