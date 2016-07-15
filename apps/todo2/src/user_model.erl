@@ -1,6 +1,6 @@
 -module(user_model).
 
--export([exists/3, create/2]).
+-export([exists/3, create/2, login/2]).
 
 exists(Conn, {Username, Email}, Field) when Field =:= username; Field =:= email ->
   case Field of
@@ -38,6 +38,26 @@ create(Conn, User={Username, Email, Password}) ->
 
       {ok, created};
     Error ->
+      Error
+  end.
+
+login(Conn, {Email, Password}) ->
+  Query = io_lib:format("SELECT * FROM users WHERE email='~s';", [Email]),
+  {ok, _, Res} = epgsql:squery(Conn, Query),
+
+  Error = {error, [<<"invalid email or password">>]},
+
+  case length(Res) > 0 of
+    true ->
+      [{Id, Username, Email, PasswordHash}] = Res,
+
+      case {ok, binary_to_list(PasswordHash)} =:= bcrypt:hashpw(binary_to_list(Password), binary_to_list(PasswordHash)) of
+        true ->
+          {ok, {binary_to_integer(Id), Username}};
+        false ->
+          Error
+      end;
+    false ->
       Error
   end.
 

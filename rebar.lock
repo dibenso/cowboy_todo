@@ -1,4 +1,6 @@
-[{<<"bcrypt">>,
+{"1.1.0",
+[{<<"base64url">>,{pkg,<<"base64url">>,<<"0.0.1">>},1},
+ {<<"bcrypt">>,
   {git,"git://github.com/dibenso/erlang-bcrypt.git",
        {ref,"3a3bac1b39501e74657e3121a136a31f2d4619d8"}},
   0},
@@ -10,6 +12,10 @@
   {git,"https://github.com/ninenines/cowlib.git",
        {ref,"d544a494af4dbc810fc9c15eaf5cc050cced1501"}},
   1},
+ {<<"ejwt">>,
+  {git,"git://github.com/artefactop/ejwt.git",
+       {ref,"a84e99747ed43e8c5e700319ce799e3f29d36fa3"}},
+  0},
  {<<"email_address">>,
   {git,"git://github.com/mswimmer/erlang-email-address.git",
        {ref,"861110d31e5b3a02f9a9146b8015b969a191d6a6"}},
@@ -22,7 +28,17 @@
   {git,"git://github.com/davisp/jiffy.git",
        {ref,"1febce3ca86c5ca5d5a3618ed3d5f125bb99e4c5"}},
   0},
+ {<<"jsx">>,{pkg,<<"jsx">>,<<"2.8.0">>},1},
+ {<<"jwt">>,
+  {git,"git://github.com/artemeff/jwt.git",
+       {ref,"f4ce31caca8c3a52e828cad29fa7205eab47ca12"}},
+  0},
  {<<"ranch">>,
   {git,"https://github.com/ninenines/ranch.git",
        {ref,"adf1822defc2b7cfdc7aca112adabfa1d614043c"}},
-  1}].
+  1}]}.
+[
+{pkg_hash,[
+ {<<"base64url">>, <<"36A90125F5948E3AFD7BE97662A1504B934DD5DAC78451CA6E9ABF85A10286BE">>},
+ {<<"jsx">>, <<"749BEC6D205C694AE1786D62CEA6CC45A390437E24835FD16D12D74F07097727">>}]}
+].

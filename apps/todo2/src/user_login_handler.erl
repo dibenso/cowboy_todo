@@ -60,9 +60,20 @@ login_user(Req, State) ->
   User = proplists:get_value(user, State),
   Conn = database:get_connection(),
 
-  case user_model:login(User) of
-    {ok, logged_in} ->
-      ok;
+  case user_model:login(Conn, User) of
+    {ok, {UserId, Username}} ->
+      Claims = [{<<"user_id">>, UserId}],
+      Token = ejwt:encode(Claims, request:jwt_key()),
+
+      Body = {[{status, <<"ok">>}, {data, {[{username, Username}, {token, Token}]}}]},
+      JsonBody = jiffy:encode(Body),
+
+      Req2 = cowboy_req:set_resp_body(JsonBody, Req),
+      {true, Req2, State};
     {error, Reason} ->
-      error
+      Body = {[{status, <<"error">>}, {errors, Reason}]},
+      JsonBody = jiffy:encode(Body),
+
+      Req2 = cowboy_req:set_resp_body(JsonBody, Req),
+      {false, Req2, State}
   end.

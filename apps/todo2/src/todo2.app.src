@@ -11,7 +11,8 @@
     jiffy,
     crypto,
     bcrypt,
-    email_address
+    email_address,
+    ejwt
    ]},
   {env,[]},
   {modules, []},

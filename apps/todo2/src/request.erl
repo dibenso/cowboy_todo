@@ -1,6 +1,9 @@
 -module(request).
 
--export([from_json/1, safe_html/1]).
+-export([from_json/1, safe_html/1, jwt_key/0]).
+
+jwt_key() ->
+  <<"Q7{b/X{^Ch>jYr'.Q]g{Q_6R8b\S$e[[">>.
 
 from_json(Json) when is_binary(Json) ->
   case jiffy:decode(Json) of
