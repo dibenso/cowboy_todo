@@ -15,8 +15,6 @@ rest_init(Req, Opts) ->
 is_authorized(Req, State) ->
   {Jwt, Req2} = cowboy_req:header(<<"authorization">>, Req),
 
-  io:format("=============> Jwt: ~w~n", [Jwt]),
-
   case Jwt of
     undefined ->
       {false, Req2, State};

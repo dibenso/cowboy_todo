@@ -6,7 +6,7 @@ dispatch() ->
   {'_', [
     to(user_registration),
     to(user_login),
-    %% to(get_todo),
+    to(get_todo),
     to(create_todo)
   ]}.
 
