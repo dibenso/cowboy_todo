@@ -1,4 +1,4 @@
--module(get_todo_handler).
+-module(update_todo_handler).
 
 -export([init/3, rest_init/2,
          is_authorized/2, content_types_provided/2, allowed_methods/2,
@@ -28,26 +28,22 @@ is_authorized(Req, State) ->
   end.
 
 allowed_methods(Req, State) ->
-  {[<<"OPTIONS">>, <<"GET">>], Req, State}.
+  {[<<"OPTIONS">>, <<"PUT">>], Req, State}.
 
 malformed_request(Req, State) ->
     {BindingTodoId, Req2} = cowboy_req:binding(todo_id, Req),
-    try binary_to_integer(BindingTodoId) of
-      TodoId ->
-        Bad = lists:any(fun(X) -> X =:= undefined end, [TodoId]),
+    TodoId = binary_to_integer(BindingTodoId),
 
-        case Bad of
-          true ->
-            {true, Req2, State};
-          false ->
-            case is_integer(TodoId) of
-              true  -> {false, Req2, [{todo_id, TodoId}|State]};
-              false -> {true, Req2, State}
-            end
+    Bad = lists:any(fun(X) -> X =:= undefined end, [TodoId]),
+
+    case Bad of
+      true ->
+        {true, Req2, State};
+      false ->
+        case is_integer(TodoId) of
+          true  -> {false, Req2, [{todo_id, TodoId}|State]};
+          false -> {true, Req2, State}
         end
-    catch
-      _:_ ->
-        {true, Req2, State}
     end.
 
 resource_exists(Req, State) ->
