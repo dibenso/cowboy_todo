@@ -37,7 +37,6 @@ allowed_methods(Req, State) ->
   {[<<"OPTIONS">>, <<"POST">>], Req, State}.
 
 malformed_request(Req, State) ->
-
   case cowboy_req:body(Req) of
     {ok, Data, Req2} ->
       case request:from_json(Data) of

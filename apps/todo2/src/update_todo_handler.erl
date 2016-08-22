@@ -2,7 +2,7 @@
 
 -export([init/3, rest_init/2,
          is_authorized/2, content_types_accepted/2, content_types_provided/2, allowed_methods/2,
-         malformed_request/2, resource_exists/2, update_todo/2
+         malformed_request/2, resource_exists/2, previously_existed/2, allow_missing_post/2, update_todo/2
         ]).
 
 init(_Transport, Req, Opts) ->
@@ -16,11 +16,11 @@ is_authorized(Req, State) ->
 
   case Jwt of
     undefined ->
-      {false, Req2, State};
+      {{false, <<"Bearer token_type=\"JWT\"">>}, Req2, State};
     _         ->
       case ejwt:decode(Jwt, request:jwt_key()) of
         error  ->
-          {{false, <<"">>}, Req2, State};
+          {{false, <<"Bearer token_type=\"JWT\"">>}, Req2, State};
         Claims ->
           UserId = proplists:get_value(<<"user_id">>, Claims),
           {true, Req2, [{user_id, UserId}|State]}
@@ -28,7 +28,7 @@ is_authorized(Req, State) ->
   end.
 
 allowed_methods(Req, State) ->
-  {[<<"OPTIONS">>, <<"PUT">>], Req, State}.
+  {[<<"OPTIONS">>, <<"POST">>], Req, State}.
 
 malformed_request(Req, State) ->
   {BindingTodoId, Req2} = cowboy_req:binding(todo_id, Req),
@@ -60,10 +60,17 @@ malformed_request(Req, State) ->
 
                       case Bad2 of
                         true ->
-                          io:format("HERE ==============>~n"),
                           {true, Req3, State};
                         false ->
-                          {false, Req3, [{todo_id, TodoId}, {field, Field}, {value, Value}|State]}
+                          B1 = binary_to_list(Field) =:= "title",
+                          B2 = binary_to_list(Field) =:= "body",
+
+                          case B1 or B2 of
+                            true  ->
+                              {false, Req3, [{todo_id, TodoId}, {field, Field}, {value, Value}|State]};
+                            false ->
+                              {true, Req3, State}
+                          end
                       end;
                     {error, _} ->
                       {true, Req3, State}
@@ -93,22 +100,23 @@ resource_exists(Req, State) ->
       {false, Req, State}
     end.
 
+previously_existed(Req, State) ->
+  {false, Req, State}.
+
+allow_missing_post(Req, State) ->
+  {false, Req, State}.
+
 content_types_provided(Req, State) ->
   {[
     {<<"application/json">>, update_todo}
   ], Req, State}.
 
 update_todo(Req, State) ->
-  io:format("HERE ==============>~n"),
-
   Conn = database:get_connection(),
   UserId = proplists:get_value(user_id, State),
   TodoId = proplists:get_value(todo_id, State),
-  TodoField = proplists:get_value(field, State),
-  TodoValue = proplists:get_value(field, State),
-
-  %% In malformed request we need to validate which TodoField is allowed (title and body only).
-  io:format("user_id: ~p~ntodo_id: ~p~ntodo_field: ~w~ntodo_value: ~w~n", [UserId, TodoId, TodoField, TodoValue]),
+  %% TodoField = proplists:get_value(field, State),
+  %% TodoValue = proplists:get_value(field, State),
 
   {ok, Todo} = todo_model:get(Conn, UserId, TodoId),
 
@@ -117,4 +125,6 @@ update_todo(Req, State) ->
   Body = {[{status, <<"ok">>}, {data, {[{todo_id, TodoId}, {user_id, UserId}, {title, TodoTitle}, {body, TodoBody}]}}]},
   JsonBody = jiffy:encode(Body),
 
-  {JsonBody, Req, State}.
+  Req2 = cowboy_req:set_resp_body(JsonBody, Req),
+
+  {true, Req2, State}.
