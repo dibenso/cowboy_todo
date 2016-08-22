@@ -115,16 +115,21 @@ update_todo(Req, State) ->
   Conn = database:get_connection(),
   UserId = proplists:get_value(user_id, State),
   TodoId = proplists:get_value(todo_id, State),
-  %% TodoField = proplists:get_value(field, State),
-  %% TodoValue = proplists:get_value(field, State),
+  TodoField = list_to_atom(binary_to_list(proplists:get_value(field, State))),
+  TodoValue = proplists:get_value(value, State),
 
-  {ok, Todo} = todo_model:get(Conn, UserId, TodoId),
+  case todo_model:update(Conn, UserId, TodoId, TodoField, TodoValue) of
+    {ok, _} ->
+      {ok, Todo} = todo_model:get(Conn, UserId, TodoId),
 
-  {_UserId, _TodoId, TodoTitle, TodoBody} = Todo,
+      {_UserId, _TodoId, TodoTitle, TodoBody} = Todo,
 
-  Body = {[{status, <<"ok">>}, {data, {[{todo_id, TodoId}, {user_id, UserId}, {title, TodoTitle}, {body, TodoBody}]}}]},
-  JsonBody = jiffy:encode(Body),
+      Body = {[{status, <<"ok">>}, {data, {[{todo_id, TodoId}, {user_id, UserId}, {title, TodoTitle}, {body, TodoBody}]}}]},
+      JsonBody = jiffy:encode(Body),
 
-  Req2 = cowboy_req:set_resp_body(JsonBody, Req),
+      Req2 = cowboy_req:set_resp_body(JsonBody, Req),
 
-  {true, Req2, State}.
+      {true, Req2, State};
+    _ ->
+      {false, Req, State}
+  end.
