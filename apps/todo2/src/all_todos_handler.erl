@@ -41,10 +41,8 @@ get_todos(Req, State) ->
 
   {ok, _, Todos} = todo_model:get(Conn, UserId, all),
 
-  FRows = [{[{id, Id}, {title, TodoTitle}, {body, TodoBody}, {user_id, UserId}]} || {Id, TodoTitle, TodoBody, _} <- Todos],
+  FRows = [{[{id, binary_to_integer(Id)}, {title, TodoTitle}, {body, TodoBody}, {user_id, UserId}]} || {Id, TodoTitle, TodoBody, _} <- Todos],
   Data = {[{todos, FRows}]},
-  Body = jiffy:encode(Data),
-
-  JsonBody = jiffy:encode(Body),
+  JsonBody = jiffy:encode(Data),
 
   {JsonBody, Req, State}.
