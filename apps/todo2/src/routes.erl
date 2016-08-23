@@ -8,6 +8,7 @@ dispatch() ->
     to(user_login),
     to(create_todo),
     to(get_todo),
+    to(all_todos),
     to(update_todo),
     to(delete_todo)
   ]}.
@@ -20,6 +21,9 @@ to(user_login) ->
 
 to(get_todo) ->
   {"/todo/:todo_id", get_todo_handler, []};
+
+to(all_todos) ->
+  {"/todos", all_todos_handler, []};
 
 to(create_todo) ->
   {"/todo/create", create_todo_handler, []};

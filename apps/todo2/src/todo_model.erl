@@ -18,6 +18,10 @@ exists(Conn, UserId, TodoId) ->
 
   binary_to_integer(Count) > 0 .
 
+get(Conn, UserId, all) ->
+  Query = io_lib:format("SELECT * FROM todos WHERE user_id=~B;", [UserId]),
+  epgsql:squery(Conn, Query);
+
 get(Conn, UserId, TodoId) ->
   Query = io_lib:format("SELECT * FROM todos WHERE user_id=~B AND id=~B;", [UserId, TodoId]),
   {ok, _, [{_TodoId, Title, Body, _UserId}]} = epgsql:squery(Conn, Query),
