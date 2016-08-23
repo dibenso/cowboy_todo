@@ -1,6 +1,6 @@
 -module(todo_model).
 
--export([create/3, exists/3, get/3, update/5]).
+-export([create/3, exists/3, get/3, update/5, delete/3]).
 
 %% Don't forget to validate lengths and such
 create(Conn, {TodoTitle, TodoBody}, UserId) ->
@@ -30,4 +30,8 @@ update(Conn, UserId, TodoId, title, TitleValue) ->
 
 update(Conn, UserId, TodoId, body, BodyValue) ->
   Query = io_lib:format("UPDATE todos SET body='~s' WHERE id=~B AND user_id=~B;", [binary_to_list(BodyValue), TodoId, UserId]),
+  epgsql:squery(Conn, Query).
+
+delete(Conn, UserId, TodoId) ->
+  Query = io_lib:format("DELETE FROM todos WHERE id=~B AND user_id=~B;", [TodoId, UserId]),
   epgsql:squery(Conn, Query).
