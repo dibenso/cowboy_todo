@@ -26,3 +26,20 @@ Build
 Run
 ---
     $ make run
+    
+Routes
+------
+PUT /users/registration --- Registers a user   
+Example:
+    
+`$ curl -i -X PUT -H "Content-Type: application/json" --data '{"email": "email@example.com", "username": "example_user", "password": "example_password"}' 127.0.0.1:8080/users/register`    
+
+POST /users/login --- login as a user
+Example:    
+
+`$ curl -i -X POST -H "Content-Type: application/json" --data '{"email": "email@example.com", "password": "example_password"}' 127.0.0.1:8080/users/login`    
+The response will give you a session token back for use with authorized requests    
+
+MORE...
+-------
+     
